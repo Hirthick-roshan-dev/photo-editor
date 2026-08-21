@@ -14,21 +14,22 @@ class PhotoEditorApp extends StatelessWidget {
     return MaterialApp(
       title: 'Photo Editor',
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.dark,
-      darkTheme: ThemeData(
+      themeMode: ThemeMode.light,
+      theme: ThemeData(
         useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF090D16),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF06B6D4),
-          secondary: Color(0xFF6366F1),
-          surface: Color(0xFF111827),
-          onSurface: Colors.white,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF2563EB),
+          secondary: Color(0xFF4F46E5),
+          surface: Colors.white,
+          onSurface: Color(0xFF0F172A),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF111827),
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          foregroundColor: Color(0xFF0F172A),
           elevation: 0,
+          scrolledUnderElevation: 1,
         ),
       ),
       home: const HomeScreen(),

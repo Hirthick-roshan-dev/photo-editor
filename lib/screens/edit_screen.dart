@@ -37,12 +37,21 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0F17),
+      backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF111827),
+        backgroundColor: Colors.white,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 18,
+            color: Color(0xFF0F172A),
+          ),
           tooltip: 'Back to Home',
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -57,7 +66,7 @@ class _EditScreenState extends State<EditScreen> {
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                letterSpacing: 0.2,
+                color: Color(0xFF0F172A),
               ),
             ),
             const SizedBox(height: 2),
@@ -66,22 +75,22 @@ class _EditScreenState extends State<EditScreen> {
                 if (widget.image.resolution.isNotEmpty) ...[
                   Text(
                     widget.image.resolution,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
-                      color: Colors.cyanAccent.shade100,
-                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF2563EB),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const Text(
                     ' • ',
-                    style: TextStyle(fontSize: 11, color: Colors.white38),
+                    style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
                   ),
                 ],
                 Text(
                   widget.image.formattedSize,
                   style: const TextStyle(
                     fontSize: 11,
-                    color: Colors.white60,
+                    color: Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -90,8 +99,11 @@ class _EditScreenState extends State<EditScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.restart_alt_rounded),
-            tooltip: 'Reset Zoom & Edits',
+            icon: const Icon(
+              Icons.restart_alt_rounded,
+              color: Color(0xFF475569),
+            ),
+            tooltip: 'Reset Zoom',
             onPressed: () {
               _resetZoom();
               ScaffoldMessenger.of(context).showSnackBar(
@@ -106,8 +118,8 @@ class _EditScreenState extends State<EditScreen> {
             padding: const EdgeInsets.only(right: 12.0, top: 8, bottom: 8),
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF06B6D4),
-                foregroundColor: Colors.black,
+                backgroundColor: const Color(0xFF2563EB),
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -116,15 +128,23 @@ class _EditScreenState extends State<EditScreen> {
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    backgroundColor: const Color(0xFF1E293B),
+                    backgroundColor: const Color(0xFF0F172A),
                     behavior: SnackBarBehavior.floating,
                     content: Row(
                       children: [
-                        const Icon(Icons.check_circle, color: Color(0xFF06B6D4)),
+                        const Icon(
+                          Icons.check_circle,
+                          color: Color(0xFF38BDF8),
+                          size: 20,
+                        ),
                         const SizedBox(width: 10),
-                        Text(
-                          'Ready to export ${widget.image.name}',
-                          style: const TextStyle(color: Colors.white),
+                        Expanded(
+                          child: Text(
+                            'Ready to export ${widget.image.name}',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         ),
                       ],
                     ),
@@ -134,7 +154,7 @@ class _EditScreenState extends State<EditScreen> {
               icon: const Icon(Icons.download_rounded, size: 18),
               label: const Text(
                 'Export',
-                style: TextStyle(fontWeight: FontWeight.w700),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -146,11 +166,9 @@ class _EditScreenState extends State<EditScreen> {
           Expanded(
             child: Stack(
               children: [
-                // Background dark checkered workspace
+                // Background subtle light checkered pattern
                 Positioned.fill(
-                  child: CustomPaint(
-                    painter: _CheckerboardPainter(),
-                  ),
+                  child: CustomPaint(painter: _LightCheckerboardPainter()),
                 ),
                 // Interactive viewer for image
                 Center(
@@ -165,9 +183,10 @@ class _EditScreenState extends State<EditScreen> {
                         decoration: BoxDecoration(
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.6),
-                              blurRadius: 30,
-                              spreadRadius: 5,
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 24,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
@@ -185,8 +204,9 @@ class _EditScreenState extends State<EditScreen> {
                   bottom: 16,
                   child: FloatingActionButton.small(
                     heroTag: 'reset_zoom_fab',
-                    backgroundColor: const Color(0xFF1E293B),
-                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF0F172A),
+                    elevation: 3,
                     tooltip: 'Reset Pan & Zoom',
                     onPressed: _resetZoom,
                     child: const Icon(Icons.fit_screen_rounded, size: 18),
@@ -199,9 +219,9 @@ class _EditScreenState extends State<EditScreen> {
           // Bottom Tool Controls & Options Panel
           Container(
             decoration: const BoxDecoration(
-              color: Color(0xFF111827),
+              color: Colors.white,
               border: Border(
-                top: BorderSide(color: Color(0xFF1F2937), width: 1),
+                top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
               ),
             ),
             child: SafeArea(
@@ -209,51 +229,13 @@ class _EditScreenState extends State<EditScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Active tool sub-panel description
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              _tools[_selectedToolIndex].icon,
-                              size: 18,
-                              color: const Color(0xFF06B6D4),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _tools[_selectedToolIndex].label,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          'Tap tools below to switch mode',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.4),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const Divider(height: 1, color: Color(0xFF1F2937)),
-
-                  // Tool icons list
+                  // Tool items list
                   SizedBox(
-                    height: 80,
+                    height: 84,
                     child: ListView.separated(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
-                        vertical: 10,
+                        vertical: 8,
                       ),
                       scrollDirection: Axis.horizontal,
                       itemCount: _tools.length,
@@ -271,44 +253,47 @@ class _EditScreenState extends State<EditScreen> {
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
+                            duration: const Duration(milliseconds: 150),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 8,
+                              vertical: 6,
                             ),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF06B6D4).withValues(alpha: 0.15)
-                                  : const Color(0xFF1F2937).withValues(alpha: 0.6),
+                                  ? const Color(0xFFEFF6FF)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF06B6D4)
-                                    : Colors.transparent,
-                                width: 1.5,
+                                    ? const Color(0xFF2563EB)
+                                    : const Color(0xFFE2E8F0),
+                                width: 1.2,
                               ),
                             ),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
                                   tool.icon,
                                   size: 22,
                                   color: isSelected
-                                      ? const Color(0xFF06B6D4)
-                                      : Colors.white70,
+                                      ? const Color(0xFF2563EB)
+                                      : const Color(0xFF64748B),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 3),
                                 Text(
                                   tool.label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: isSelected
                                         ? FontWeight.w600
                                         : FontWeight.normal,
                                     color: isSelected
-                                        ? Colors.white
-                                        : Colors.white60,
+                                        ? const Color(0xFF2563EB)
+                                        : const Color(0xFF64748B),
                                   ),
                                 ),
                               ],
@@ -335,12 +320,12 @@ class _ToolItem {
   const _ToolItem({required this.icon, required this.label});
 }
 
-class _CheckerboardPainter extends CustomPainter {
+class _LightCheckerboardPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     const double squareSize = 16.0;
-    final paint1 = Paint()..color = const Color(0xFF0D131F);
-    final paint2 = Paint()..color = const Color(0xFF131B2A);
+    final paint1 = Paint()..color = const Color(0xFFF1F5F9);
+    final paint2 = Paint()..color = const Color(0xFFE2E8F0);
 
     for (double y = 0; y < size.height; y += squareSize) {
       for (double x = 0; x < size.width; x += squareSize) {

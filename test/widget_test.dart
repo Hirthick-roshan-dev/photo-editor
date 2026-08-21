@@ -7,8 +7,8 @@ void main() {
     await tester.pumpWidget(const PhotoEditorApp());
 
     // Verify HomeScreen renders title and action buttons
-    expect(find.text('Create & Edit Stunning Photos'), findsOneWidget);
-    expect(find.text('Choose a Photo to Edit'), findsOneWidget);
+    expect(find.text('Photo Editor'), findsOneWidget);
+    expect(find.text('Select an Image to Edit'), findsOneWidget);
     expect(find.text('Gallery'), findsOneWidget);
     expect(find.text('Camera'), findsOneWidget);
     expect(find.text('Sample'), findsOneWidget);
@@ -19,7 +19,7 @@ void main() {
 
     // Verify EditScreen is displayed
     expect(find.byType(EditScreen), findsOneWidget);
-    expect(find.text('sample_creative_artwork.png'), findsOneWidget);
+    expect(find.text('sample_photo.png'), findsOneWidget);
     expect(find.text('Export'), findsOneWidget);
     expect(find.text('Adjust'), findsOneWidget);
     expect(find.text('Filters'), findsOneWidget);
