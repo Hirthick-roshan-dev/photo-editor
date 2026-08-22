@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/editable_image.dart';
+import 'crop_screen.dart';
 
 class EditScreen extends StatefulWidget {
   final EditableImage image;
@@ -13,6 +14,11 @@ class EditScreen extends StatefulWidget {
 class _EditScreenState extends State<EditScreen> {
   final TransformationController _transformationController =
       TransformationController();
+
+  late EditableImage _currentImage;
+  final List<EditableImage> _undoHistory = [];
+  final List<EditableImage> _redoHistory = [];
+
   int _selectedToolIndex = 0;
 
   final List<_ToolItem> _tools = const [
@@ -24,14 +30,86 @@ class _EditScreenState extends State<EditScreen> {
     _ToolItem(icon: Icons.emoji_emotions_outlined, label: 'Stickers'),
   ];
 
-  void _resetZoom() {
-    _transformationController.value = Matrix4.identity();
+  @override
+  void initState() {
+    super.initState();
+    _currentImage = widget.image;
   }
 
   @override
   void dispose() {
     _transformationController.dispose();
     super.dispose();
+  }
+
+  void _resetZoom() {
+    _transformationController.value = Matrix4.identity();
+  }
+
+  Future<void> _openCropScreen() async {
+    final EditableImage? cropped = await Navigator.of(context)
+        .push<EditableImage>(
+          MaterialPageRoute(
+            builder: (context) => CropScreen(image: _currentImage),
+          ),
+        );
+
+    if (cropped != null && mounted) {
+      setState(() {
+        _undoHistory.add(_currentImage);
+        _redoHistory.clear();
+        _currentImage = cropped;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFF0F172A),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Row(
+            children: [
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF38BDF8),
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Cropped to ${cropped.resolution} (${cropped.formattedSize})',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _undo() {
+    if (_undoHistory.isNotEmpty) {
+      setState(() {
+        _redoHistory.add(_currentImage);
+        _currentImage = _undoHistory.removeLast();
+      });
+    }
+  }
+
+  void _redo() {
+    if (_redoHistory.isNotEmpty) {
+      setState(() {
+        _undoHistory.add(_currentImage);
+        _currentImage = _redoHistory.removeLast();
+      });
+    }
   }
 
   @override
@@ -42,6 +120,7 @@ class _EditScreenState extends State<EditScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
+        titleSpacing: 0,
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
@@ -59,48 +138,87 @@ class _EditScreenState extends State<EditScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              widget.image.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF0F172A),
-              ),
-            ),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                if (widget.image.resolution.isNotEmpty) ...[
-                  Text(
-                    widget.image.resolution,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF2563EB),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Text(
-                    ' • ',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
-                  ),
-                ],
-                Text(
-                  widget.image.formattedSize,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-              ],
-            ),
+            // Text(
+            //   _currentImage.name,
+            //   maxLines: 1,
+            //   overflow: TextOverflow.ellipsis,
+            //   style: const TextStyle(
+            //     fontSize: 14,
+            //     fontWeight: FontWeight.w600,
+            //     color: Color(0xFF0F172A),
+            //   ),
+            // ),
+            // const SizedBox(height: 1),
+            // Text.rich(
+            //   TextSpan(
+            //     children: [
+            //       if (_currentImage.resolution.isNotEmpty) ...[
+            //         TextSpan(
+            //           text: _currentImage.resolution,
+            //           style: const TextStyle(
+            //             fontSize: 10.5,
+            //             color: Color(0xFF2563EB),
+            //             fontWeight: FontWeight.w600,
+            //           ),
+            //         ),
+            //         const TextSpan(
+            //           text: ' • ',
+            //           style: TextStyle(
+            //             fontSize: 10.5,
+            //             color: Color(0xFF94A3B8),
+            //           ),
+            //         ),
+            //       ],
+            //       TextSpan(
+            //         text: _currentImage.formattedSize,
+            //         style: const TextStyle(
+            //           fontSize: 10.5,
+            //           color: Color(0xFF64748B),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            //   maxLines: 1,
+            //   overflow: TextOverflow.ellipsis,
+            // ),
           ],
         ),
         actions: [
           IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            icon: Icon(
+              Icons.undo_rounded,
+              size: 20,
+              color: _undoHistory.isNotEmpty
+                  ? const Color(0xFF0F172A)
+                  : const Color(0xFFCBD5E1),
+            ),
+            tooltip: 'Undo',
+            onPressed: _undoHistory.isNotEmpty ? _undo : null,
+          ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            icon: Icon(
+              Icons.redo_rounded,
+              size: 20,
+              color: _redoHistory.isNotEmpty
+                  ? const Color(0xFF0F172A)
+                  : const Color(0xFFCBD5E1),
+            ),
+            tooltip: 'Redo',
+            onPressed: _redoHistory.isNotEmpty ? _redo : null,
+          ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
             icon: const Icon(
               Icons.restart_alt_rounded,
+              size: 20,
               color: Color(0xFF475569),
             ),
             tooltip: 'Reset Zoom',
@@ -115,14 +233,23 @@ class _EditScreenState extends State<EditScreen> {
             },
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 12.0, top: 8, bottom: 8),
+            padding: const EdgeInsets.only(
+              left: 4.0,
+              right: 8.0,
+              top: 8,
+              bottom: 8,
+            ),
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF2563EB),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 0,
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
               onPressed: () {
@@ -140,7 +267,7 @@ class _EditScreenState extends State<EditScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Ready to export ${widget.image.name}',
+                            'Ready to export ${_currentImage.name}',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(color: Colors.white),
@@ -151,10 +278,10 @@ class _EditScreenState extends State<EditScreen> {
                   ),
                 );
               },
-              icon: const Icon(Icons.download_rounded, size: 18),
+              icon: const Icon(Icons.download_rounded, size: 16),
               label: const Text(
                 'Export',
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -162,14 +289,15 @@ class _EditScreenState extends State<EditScreen> {
       ),
       body: Column(
         children: [
-          // Workspace Canvas with interactive zoom/pan
+          // Canvas Workspace with interactive zoom/pan
           Expanded(
             child: Stack(
               children: [
-                // Background subtle light checkered pattern
+                // Background subtle checkerboard pattern
                 Positioned.fill(
                   child: CustomPaint(painter: _LightCheckerboardPainter()),
                 ),
+
                 // Interactive viewer for image
                 Center(
                   child: InteractiveViewer(
@@ -178,7 +306,7 @@ class _EditScreenState extends State<EditScreen> {
                     maxScale: 6.0,
                     boundaryMargin: const EdgeInsets.all(80.0),
                     child: Hero(
-                      tag: 'image_${widget.image.name}',
+                      tag: 'image_${_currentImage.name}',
                       child: Container(
                         decoration: BoxDecoration(
                           boxShadow: [
@@ -191,14 +319,15 @@ class _EditScreenState extends State<EditScreen> {
                           ],
                         ),
                         child: Image.memory(
-                          widget.image.bytes,
+                          _currentImage.bytes,
                           fit: BoxFit.contain,
                         ),
                       ),
                     ),
                   ),
                 ),
-                // Zoom reset floating quick badge
+
+                // Zoom reset floating quick button
                 Positioned(
                   right: 16,
                   bottom: 16,
@@ -216,7 +345,7 @@ class _EditScreenState extends State<EditScreen> {
             ),
           ),
 
-          // Bottom Tool Controls & Options Panel
+          // Bottom Tools List
           Container(
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -226,84 +355,82 @@ class _EditScreenState extends State<EditScreen> {
             ),
             child: SafeArea(
               top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Tool items list
-                  SizedBox(
-                    height: 84,
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _tools.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final tool = _tools[index];
-                        final isSelected = _selectedToolIndex == index;
+              child: SizedBox(
+                height: 84,
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _tools.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final tool = _tools[index];
+                    final isSelected = _selectedToolIndex == index;
 
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              _selectedToolIndex = index;
-                            });
-                          },
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedToolIndex = index;
+                        });
+                        if (index == 2) {
+                          // Crop Tool Tapped -> Open dedicated CropScreen
+                          _openCropScreen();
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? const Color(0xFFEFF6FF)
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFF2563EB)
+                                : const Color(0xFFE2E8F0),
+                            width: 1.2,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              tool.icon,
+                              size: 22,
                               color: isSelected
-                                  ? const Color(0xFFEFF6FF)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
+                                  ? const Color(0xFF2563EB)
+                                  : const Color(0xFF64748B),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              tool.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                                 color: isSelected
                                     ? const Color(0xFF2563EB)
-                                    : const Color(0xFFE2E8F0),
-                                width: 1.2,
+                                    : const Color(0xFF64748B),
                               ),
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  tool.icon,
-                                  size: 22,
-                                  color: isSelected
-                                      ? const Color(0xFF2563EB)
-                                      : const Color(0xFF64748B),
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  tool.label,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                    color: isSelected
-                                        ? const Color(0xFF2563EB)
-                                        : const Color(0xFF64748B),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
