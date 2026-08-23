@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/editable_image.dart';
 import 'crop_screen.dart';
+import 'filter_screen.dart';
 
 class EditScreen extends StatefulWidget {
   final EditableImage image;
@@ -44,6 +45,54 @@ class _EditScreenState extends State<EditScreen> {
 
   void _resetZoom() {
     _transformationController.value = Matrix4.identity();
+  }
+
+  Future<void> _openFilterScreen() async {
+    final EditableImage? filtered = await Navigator.of(context)
+        .push<EditableImage>(
+          MaterialPageRoute(
+            builder: (context) => FilterScreen(image: _currentImage),
+          ),
+        );
+
+    if (filtered != null && mounted && filtered != _currentImage) {
+      setState(() {
+        _undoHistory.add(_currentImage);
+        _redoHistory.clear();
+        _currentImage = filtered;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFF0F172A),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Row(
+            children: [
+              const Icon(
+                Icons.auto_awesome_rounded,
+                color: Color(0xFF38BDF8),
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Filter applied (${filtered.formattedSize})',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Future<void> _openCropScreen() async {
@@ -375,7 +424,10 @@ class _EditScreenState extends State<EditScreen> {
                         setState(() {
                           _selectedToolIndex = index;
                         });
-                        if (index == 2) {
+                        if (index == 1) {
+                          // Filters Tool Tapped -> Open dedicated FilterScreen
+                          _openFilterScreen();
+                        } else if (index == 2) {
                           // Crop Tool Tapped -> Open dedicated CropScreen
                           _openCropScreen();
                         }

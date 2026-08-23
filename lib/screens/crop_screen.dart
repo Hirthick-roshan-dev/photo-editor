@@ -96,18 +96,6 @@ class _CropScreenState extends State<CropScreen> {
     _cropOverlayKey.currentState?.setAspectRatio(_selectedAspectRatio);
   }
 
-  void _rotateClockwise() {
-    setState(() {
-      _cropRotation = (_cropRotation + 90) % 360;
-    });
-  }
-
-  void _flipHorizontal() {
-    setState(() {
-      _flipH = !_flipH;
-    });
-  }
-
   void _resetCropBox() {
     setState(() {
       _selectedAspectRatio = null;
@@ -393,33 +381,6 @@ class _CropScreenState extends State<CropScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Quick Transform Action Buttons (Rotate, Flip)
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //     children: [
-            //       _buildLightTransformButton(
-            //         icon: Icons.rotate_right_rounded,
-            //         label: 'Rotate 90°',
-            //         onTap: _rotateClockwise,
-            //       ),
-            //       _buildLightTransformButton(
-            //         icon: Icons.flip_rounded,
-            //         label: 'Flip H',
-            //         isActive: _flipH,
-            //         onTap: _flipHorizontal,
-            //       ),
-            //       _buildLightTransformButton(
-            //         icon: Icons.restart_alt_rounded,
-            //         label: 'Reset Box',
-            //         onTap: _resetCropBox,
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            // const Divider(color: Color(0xFFE2E8F0), height: 12),
-
             // Aspect Ratio Presets Horizontal Scroll
             SizedBox(
               height: 60,
@@ -488,57 +449,6 @@ class _CropScreenState extends State<CropScreen> {
             ),
             const SizedBox(height: 6),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLightTransformButton({
-    required IconData icon,
-    required String label,
-    bool isActive = false,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(
-            color: isActive ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isActive
-                  ? const Color(0xFF2563EB)
-                  : const Color(0xFFE2E8F0),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 16,
-                color: isActive
-                    ? const Color(0xFF2563EB)
-                    : const Color(0xFF475569),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isActive
-                      ? const Color(0xFF2563EB)
-                      : const Color(0xFF475569),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
