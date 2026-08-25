@@ -57,12 +57,29 @@ void main() {
     expect(find.text('Filters'), findsOneWidget);
     expect(find.text('Vivid'), findsOneWidget);
 
-    // Tap Apply
+    // Apply Filter and return to EditScreen
     await tester.tap(find.text('Apply'));
     await tester.pump(const Duration(milliseconds: 300));
-
-    // Verify returning to EditScreen
+    await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(FilterScreen), findsNothing);
+    expect(find.byType(EditScreen), findsOneWidget);
+
+    // Tap on the Text tool
+    await tester.tap(find.text('Text'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Verify TextScreen is displayed
+    expect(find.text('Add Text'), findsOneWidget);
+    expect(find.text('Text & Font'), findsOneWidget);
+    expect(find.text('Apply'), findsOneWidget);
+
+    // Apply text
+    await tester.tap(find.text('Apply'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Verify returning to EditScreen with snackbar
     expect(find.byType(EditScreen), findsOneWidget);
   });
 }

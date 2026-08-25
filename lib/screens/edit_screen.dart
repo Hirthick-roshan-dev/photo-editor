@@ -3,6 +3,7 @@ import '../models/editable_image.dart';
 import 'crop_screen.dart';
 import 'draw_screen.dart';
 import 'filter_screen.dart';
+import 'text_screen.dart';
 
 class EditScreen extends StatefulWidget {
   final EditableImage image;
@@ -177,6 +178,54 @@ class _EditScreenState extends State<EditScreen> {
               Expanded(
                 child: Text(
                   'Drawing saved (${drawn.resolution})',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _openTextScreen() async {
+    final EditableImage? withText = await Navigator.of(context)
+        .push<EditableImage>(
+          MaterialPageRoute(
+            builder: (context) => TextScreen(image: _currentImage),
+          ),
+        );
+
+    if (withText != null && mounted && withText != _currentImage) {
+      setState(() {
+        _undoHistory.add(_currentImage);
+        _redoHistory.clear();
+        _currentImage = withText;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFF0F172A),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Row(
+            children: [
+              const Icon(
+                Icons.title_rounded,
+                color: Color(0xFF38BDF8),
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Text added (${withText.resolution})',
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
@@ -479,6 +528,9 @@ class _EditScreenState extends State<EditScreen> {
                         } else if (index == 2) {
                           // Crop Tool Tapped -> Open dedicated CropScreen
                           _openCropScreen();
+                        } else if (index == 3) {
+                          // Text Tool Tapped -> Open dedicated TextScreen
+                          _openTextScreen();
                         } else if (index == 4) {
                           // Draw Tool Tapped -> Open dedicated DrawScreen
                           _openDrawScreen();
