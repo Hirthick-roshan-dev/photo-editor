@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 
+
+
+
+
+
+
+
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const PhotoEditorApp());
 }
+
+
+
+
+
+
+
+
+
 
 class PhotoEditorApp extends StatelessWidget {
   const PhotoEditorApp({super.key});
