@@ -1168,7 +1168,7 @@ class _TextScreenState extends State<TextScreen> {
             separatorBuilder: (context, index) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final color = _presetColors[index];
-              final bool isSelected = selected.color.value == color.value;
+              final bool isSelected = selected.color.toARGB32() == color.toARGB32();
 
               return GestureDetector(
                 onTap: () => _updateSelectedLayer((l) => l.copyWith(color: color)),
@@ -1331,7 +1331,7 @@ class _TextScreenState extends State<TextScreen> {
                     itemBuilder: (context, index) {
                       final color = _presetColors[index];
                       final bool isSelected =
-                          selected.backgroundColor.value == color.value;
+                          selected.backgroundColor.toARGB32() == color.toARGB32();
 
                       return GestureDetector(
                         onTap: () => _updateSelectedLayer(

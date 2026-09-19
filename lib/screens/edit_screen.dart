@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/editable_image.dart';
+import '../widgets/export_dialog.dart';
 import 'crop_screen.dart';
 import 'draw_screen.dart';
 import 'filter_screen.dart';
@@ -285,49 +286,49 @@ class _EditScreenState extends State<EditScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Text(
-            //   _currentImage.name,
-            //   maxLines: 1,
-            //   overflow: TextOverflow.ellipsis,
-            //   style: const TextStyle(
-            //     fontSize: 14,
-            //     fontWeight: FontWeight.w600,
-            //     color: Color(0xFF0F172A),
-            //   ),
-            // ),
-            // const SizedBox(height: 1),
-            // Text.rich(
-            //   TextSpan(
-            //     children: [
-            //       if (_currentImage.resolution.isNotEmpty) ...[
-            //         TextSpan(
-            //           text: _currentImage.resolution,
-            //           style: const TextStyle(
-            //             fontSize: 10.5,
-            //             color: Color(0xFF2563EB),
-            //             fontWeight: FontWeight.w600,
-            //           ),
-            //         ),
-            //         const TextSpan(
-            //           text: ' • ',
-            //           style: TextStyle(
-            //             fontSize: 10.5,
-            //             color: Color(0xFF94A3B8),
-            //           ),
-            //         ),
-            //       ],
-            //       TextSpan(
-            //         text: _currentImage.formattedSize,
-            //         style: const TextStyle(
-            //           fontSize: 10.5,
-            //           color: Color(0xFF64748B),
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            //   maxLines: 1,
-            //   overflow: TextOverflow.ellipsis,
-            // ),
+            Text(
+              _currentImage.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text.rich(
+              TextSpan(
+                children: [
+                  if (_currentImage.resolution.isNotEmpty) ...[
+                    TextSpan(
+                      text: _currentImage.resolution,
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        color: Color(0xFF2563EB),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const TextSpan(
+                      text: ' • ',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                  TextSpan(
+                    text: _currentImage.formattedSize,
+                    style: const TextStyle(
+                      fontSize: 10.5,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
         actions: [
@@ -391,40 +392,12 @@ class _EditScreenState extends State<EditScreen> {
                 backgroundColor: const Color(0xFF2563EB),
                 foregroundColor: Colors.white,
                 visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: const Color(0xFF0F172A),
-                    behavior: SnackBarBehavior.floating,
-                    content: Row(
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          color: Color(0xFF38BDF8),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Ready to export ${_currentImage.name}',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+              onPressed: () => ExportDialog.show(context, _currentImage),
               icon: const Icon(Icons.download_rounded, size: 16),
               label: const Text(
                 'Export',
