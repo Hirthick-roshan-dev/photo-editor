@@ -4,6 +4,7 @@ import '../widgets/export_dialog.dart';
 import 'crop_screen.dart';
 import 'draw_screen.dart';
 import 'filter_screen.dart';
+import 'stickers_screen.dart';
 import 'text_screen.dart';
 
 class EditScreen extends StatefulWidget {
@@ -227,6 +228,54 @@ class _EditScreenState extends State<EditScreen> {
               Expanded(
                 child: Text(
                   'Text added (${withText.resolution})',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _openStickersScreen() async {
+    final EditableImage? withStickers = await Navigator.of(context)
+        .push<EditableImage>(
+          MaterialPageRoute(
+            builder: (context) => StickersScreen(image: _currentImage),
+          ),
+        );
+
+    if (withStickers != null && mounted && withStickers != _currentImage) {
+      setState(() {
+        _undoHistory.add(_currentImage);
+        _redoHistory.clear();
+        _currentImage = withStickers;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFF0F172A),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Row(
+            children: [
+              const Icon(
+                Icons.emoji_emotions_outlined,
+                color: Color(0xFF38BDF8),
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Stickers saved (${withStickers.resolution})',
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
@@ -507,6 +556,9 @@ class _EditScreenState extends State<EditScreen> {
                         } else if (index == 4) {
                           // Draw Tool Tapped -> Open dedicated DrawScreen
                           _openDrawScreen();
+                        } else if (index == 5) {
+                          // Stickers Tool Tapped -> Open dedicated StickersScreen
+                          _openStickersScreen();
                         }
                       },
                       borderRadius: BorderRadius.circular(12),
