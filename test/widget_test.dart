@@ -81,5 +81,23 @@ void main() {
 
     // Verify returning to EditScreen with snackbar
     expect(find.byType(EditScreen), findsOneWidget);
+
+    // Tap on the Stickers tool
+    await tester.tap(find.text('Stickers'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Verify StickersScreen is displayed
+    expect(find.text('Stickers'), findsWidgets);
+    expect(find.text('Catalog'), findsOneWidget);
+    expect(find.text('Apply'), findsOneWidget);
+
+    // Apply stickers
+    await tester.tap(find.text('Apply'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Verify returning to EditScreen
+    expect(find.byType(EditScreen), findsOneWidget);
   });
 }
